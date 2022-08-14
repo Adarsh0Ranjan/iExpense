@@ -6,28 +6,55 @@
 //
 
 import SwiftUI
+struct AmountText: View {
+    let amount: Double
+    let localCurrency: FloatingPointFormatStyle<Double>.Currency = .currency(code: Locale.current.currencyCode ?? "USD")
+    
+    var body: some View {
+        if amount > 100 {
+            Text(amount, format: localCurrency)
+                .foregroundColor(.red)
+        } else if amount > 10 {
+            Text(amount, format: localCurrency)
+                .foregroundColor(.yellow)
+        } else {
+            Text(amount, format: localCurrency)
+                .foregroundColor(.green)
+        }
+    }
+}
 
 struct ContentView: View {
     @State private var showingAddExpense = false
+    let types = ["Personal", "Business"]
     @StateObject var expenses = Expenses()
     var body: some View {
         NavigationView {
             List {
-                ForEach(expenses.items) { item in
-                    HStack{
-                        VStack(alignment: .leading){
-                            Text(item.name)
-                                .font(.headline)
-                            Text(item.type)
-                                .font(.subheadline)
+                ForEach(types,id: \.self){ type in
+                    Section(type){
+                        ForEach(expenses.items) { item in
+                            if item.type == type {
+                                HStack{
+                                    VStack(alignment: .leading){
+                                        Text(item.name)
+                                            .font(.headline)
+                                        Text(item.type)
+                                            .font(.subheadline)
+                                    }
+                                    Spacer()
+                                    
+                                    AmountText(amount: item.amount)
+                                    
+                                }
+                                
+                            }else{}
+                            
+                            
                         }
-                        Spacer()
-                        
-                        Text(item.amount, format: .currency(code: Locale.current.currencyCode ?? "USD"))
-                        
                     }
-                    
                 }
+                
                 .onDelete(perform: removeItems)
             }
             .navigationTitle("iExpense")
